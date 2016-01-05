@@ -80,6 +80,7 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
                     BiFunction<BKHashNode<K, V>, BKHashNode<K, V>, V> replace = (prev, curr) -> {
                         V value = curr.next.value;
                         prev = curr.next;
+                        size--;
                         return value;
                     };
                     return replace.apply(previous == null ? buckets[bucket] : previous.next, current);
@@ -100,6 +101,7 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
         //if emptyList, store entry there.
         if (buckets[bucket] == null) {
             buckets[bucket] = newEntry;
+            size++;
             return value;
         } else {
             BKHashNode<K, V> previous = null;
@@ -110,6 +112,7 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
                     BiFunction<BKHashNode<K, V>, BKHashNode<K, V>, V> replace = (prev, curr) -> {
                         newEntry.next = curr.next;
                         prev = newEntry;
+                        size++;
                         return value;
                     };
                     return replace.apply(previous == null ? buckets[bucket] : previous.next, current);
@@ -118,6 +121,7 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
                 current = current.next;
             }
             previous.next = newEntry;
+            size++;
             return value;
         }
     }

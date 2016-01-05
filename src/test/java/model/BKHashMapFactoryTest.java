@@ -29,9 +29,9 @@ public class BKHashMapFactoryTest {
     public void makeTest() throws Exception{
         performTest(hashMapFactory.synchronizeed());
 
-        //performTest(hashMapFactory.globalLock());
+        performTest(hashMapFactory.globalLock());
 
-        //performTest(hashMapFactory.fineGrained());
+        performTest(hashMapFactory.fineGrained());
     }
 
 
