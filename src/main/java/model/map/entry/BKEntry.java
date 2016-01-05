@@ -5,5 +5,5 @@ public interface BKEntry<K,V> {
 
     public V getValue();
 
-    public void setValue(V value);
+    public V setValue(V value);
 }

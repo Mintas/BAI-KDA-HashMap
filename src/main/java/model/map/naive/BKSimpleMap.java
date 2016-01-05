@@ -14,8 +14,7 @@ public class BKSimpleMap<K,V> implements BKMap<K,V> {
         this.values = new BKSimpleEntry[capacity];
     }
 
-    public BKSimpleMap(int size, int capacity) {
-        this.size = size;
+    public BKSimpleMap(int capacity) {
         this.capacity = capacity;
         this.values = new BKSimpleEntry[capacity];
     }
