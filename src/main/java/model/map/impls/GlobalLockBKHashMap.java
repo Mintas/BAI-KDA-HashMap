@@ -16,8 +16,7 @@ public class GlobalLockBKHashMap<K, V> extends BKHashMap<K, V> {
     public V put(K key, V value) {
         lock.lock();
         try {
-            V val = super.put(key, value);
-            return val;
+            return super.put(key, value);
         } finally {
             lock.unlock();
         }
@@ -27,8 +26,7 @@ public class GlobalLockBKHashMap<K, V> extends BKHashMap<K, V> {
     public V remove(K key) {
         lock.lock();
         try {
-            V val = super.remove(key);
-            return val;
+            return super.remove(key);
         } finally {
             lock.unlock();
         }
