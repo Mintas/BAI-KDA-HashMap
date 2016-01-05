@@ -5,9 +5,9 @@ public interface BKMap<K,V>{
 
     boolean isEmpty();
 
-    V get(K key);
-
     V put(K key, V value);
+
+    V get(K key);
 
     V remove(K key);
 }

@@ -1,8 +1,8 @@
 package model.map.impls;
 
-import model.map.naive.BKSimpleMap;
+import model.map.hash.BKHashMap;
 
-public class GlobalLockBKHashMap extends BKSimpleMap {
+public class GlobalLockBKHashMap extends BKHashMap {
     public GlobalLockBKHashMap(int capacity){
         super(capacity);
     };

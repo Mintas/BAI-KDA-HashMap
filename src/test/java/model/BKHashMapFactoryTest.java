@@ -11,7 +11,6 @@ import static java.lang.Math.ceil;
 import static java.lang.Math.random;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
-import static model.BKHashMapFactory.*;
 
 public class BKHashMapFactoryTest {
     int THREAD_POOL_SIZE = 5;
@@ -20,7 +19,8 @@ public class BKHashMapFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        hashMapFactory = init();
+        //hashMapFactory = init();
+        hashMapFactory = new BKHashMapFactory(2048);
     }
 
 
@@ -29,9 +29,9 @@ public class BKHashMapFactoryTest {
     public void makeTest() throws Exception{
         performTest(hashMapFactory.synchronizeed());
 
-        performTest(hashMapFactory.globalLock());
+        //performTest(hashMapFactory.globalLock());
 
-        performTest(hashMapFactory.fineGrained());
+        //performTest(hashMapFactory.fineGrained());
     }
 
 
@@ -50,7 +50,7 @@ public class BKHashMapFactoryTest {
                         Integer randomParam = (int) ceil(random() * 550000);
 
                         // Retrieve value. We are not using it anywhere
-                        Integer paramValue = bkMap.get(String.valueOf(randomParam));
+                        Integer paramValue = bkMap.remove(String.valueOf(randomParam));
 
                         // Put value
                         bkMap.put(String.valueOf(randomParam), randomParam);

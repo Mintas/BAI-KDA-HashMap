@@ -2,9 +2,24 @@ package model.map.hash;
 
 import model.map.naive.BKMap;
 
+import java.util.function.BiFunction;
+
 //todo : implement hashMap
-public class BKHashMap<K,V> implements BKMap<K,V>{
+public class BKHashMap<K, V> implements BKMap<K, V> {
     private int size;
+    private int capacity = 16;
+    private BKHashNode<K, V>[] buckets;
+
+    @SuppressWarnings("unchecked")
+    public BKHashMap(){
+        buckets = new BKHashNode[capacity];
+    }
+
+    @SuppressWarnings("unchecked")
+    public BKHashMap(int capacity){
+        this.capacity = capacity;
+        buckets = new BKHashNode[capacity];
+    }
 
     @Override
     public int size() {
@@ -17,24 +32,31 @@ public class BKHashMap<K,V> implements BKMap<K,V>{
     }
 
     @Override
-    public V get(K key) {
-        //getNode by its hashCode and key
-        return null;
+    public V put(K key, V value) {
+        if (key == null) return null;    //don't store null; check exception?
+        return putValue(key, value);
     }
 
     @Override
-    public V put(K key, V value) {
-        //into bucket by its hash to the end of list; with resizing
-        return null;
+    public V get(K key) {
+        int bucket = getBucketNumber(key);
+        if (buckets[bucket] == null) return null;
+        return getValue(key, bucket);
     }
 
     @Override
     public V remove(K key) {
-        //with resizing
-        return null;
+        if (key == null) return null;
+        return removeVal(key);
     }
 
+    private int getBucketNumber(K key) {
+        return getBucketNumber(hash(key));
+    }
 
+    private int getBucketNumber(int hash) {
+        return hash & (capacity - 1);
+    }
 
     static final int hash(Object key) {
         return (key == null) ? 0 : fromCode(key);
@@ -43,5 +65,70 @@ public class BKHashMap<K,V> implements BKMap<K,V>{
     private static int fromCode(Object key) {
         int h = key.hashCode();
         return h ^ (h >>> 16); //pow(2,4); like div(16)
+    }
+
+    private V removeVal(K key) {
+        int bucket = getBucketNumber(key);
+        if (buckets[bucket] == null) {
+            return null;
+        } else {
+            BKHashNode<K, V> previous = null;
+            BKHashNode<K, V> current = buckets[bucket];
+
+            while (current != null) { //we have reached last entry node of bucket.
+                if (current.key.equals(key)) { //delete first entry node.
+                    BiFunction<BKHashNode<K, V>, BKHashNode<K, V>, V> replace = (prev, curr) -> {
+                        V value = prev.next.value;
+                        prev.next = curr.next;
+                        return value;
+                    };
+                    return replace.apply(previous == null ? buckets[bucket] : previous, current);
+                }
+                previous = current;
+                current = current.next;
+            }
+            return null;
+        }
+    }
+
+    private V putValue(K key, V value) {
+        //calc hash; create new entry
+        int hash = hash(key);
+        BKHashNode<K, V> newEntry = new BKHashNode<K, V>(hash, key, value, null);
+        int bucket = getBucketNumber(hash);
+
+        //if emptyList, store entry there.
+        if (buckets[bucket] == null) {
+            buckets[bucket] = newEntry;
+            return value;
+        } else {
+            BKHashNode<K, V> previous = null;
+            BKHashNode<K, V> current = buckets[bucket];
+
+            while (current != null) { //while not in the end of bucket.
+                if (current.key.equals(key)) {
+                    BiFunction<BKHashNode<K, V>, BKHashNode<K, V>, V> replace = (prev, curr) -> {
+                        newEntry.next = curr.next;
+                        prev = newEntry;
+                        return value;
+                    };
+                    return replace.apply(previous == null ? buckets[bucket] : previous.next, current);
+                }
+                previous = current;
+                current = current.next;
+            }
+            previous.next = newEntry;
+            return value;
+        }
+    }
+
+    private V getValue(K key, int bucket) {
+        BKHashNode<K, V> curr = buckets[bucket];
+        while (curr != null) {
+            if (curr.key.equals(key))
+                return curr.value;
+            curr = curr.next; //return value corresponding to key.
+        }
+        return null;   //returns null if key is not found.
     }
 }

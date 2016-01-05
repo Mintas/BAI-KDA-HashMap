@@ -1,8 +1,8 @@
 package model.map.impls;
 
-import model.map.naive.BKSimpleMap;
+import model.map.hash.BKHashMap;
 
-public class SynchronizedBKHashMap extends BKSimpleMap {
+public class SynchronizedBKHashMap extends BKHashMap {
     public SynchronizedBKHashMap(int capacity){
         super(capacity);
     };
