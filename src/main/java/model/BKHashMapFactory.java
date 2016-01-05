@@ -3,6 +3,7 @@ package model;
 import model.map.impls.FineGrainedBKHashMap;
 import model.map.impls.GlobalLockBKHashMap;
 import model.map.impls.SynchronizedBKHashMap;
+import model.map.naive.BKMap;
 
 public class BKHashMapFactory {
     public static final int DEFAULT_CAPACITY = 16;
@@ -17,15 +18,15 @@ public class BKHashMapFactory {
         return new BKHashMapFactory(DEFAULT_CAPACITY);
     }
 
-    public SynchronizedBKHashMap synchronizeed() {
+    public BKMap synchronizeed() {
         return new SynchronizedBKHashMap(capacity);
     }
 
-    public GlobalLockBKHashMap globalLock() {
+    public BKMap globalLock() {
         return new GlobalLockBKHashMap(capacity);
     }
 
-    public FineGrainedBKHashMap fineGrained() {
+    public BKMap fineGrained() {
         return new FineGrainedBKHashMap(capacity);
     }
 }
