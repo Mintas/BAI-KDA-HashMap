@@ -6,6 +6,4 @@ public class SynchronizedBKHashMap<K, V> extends BKHashMap<K, V> {
     public SynchronizedBKHashMap(int capacity) {
         super(capacity);
     }
-
-    ;
 }

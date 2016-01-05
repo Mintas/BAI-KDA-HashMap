@@ -6,6 +6,4 @@ public class FineGrainedBKHashMap<K, V> extends BKHashMap<K, V> {
     public FineGrainedBKHashMap(int capacity) {
         super(capacity);
     }
-
-    ;
 }
