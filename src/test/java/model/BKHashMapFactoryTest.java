@@ -13,8 +13,9 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 public class BKHashMapFactoryTest {
-    int THREAD_POOL_SIZE = 5;
+    int CAPACITY = 2048; //mean % cpcty != 0 (!!!)
     int MEAN = 100000;
+    int THREAD_POOL_SIZE = 5;
     int REMOVE_PUT_NUMBER = 500000;
 
     BKHashMapFactory hashMapFactory;
@@ -22,7 +23,7 @@ public class BKHashMapFactoryTest {
     @Before
     public void setUp() throws Exception {
         //hashMapFactory = BKHashMapFactory.init();
-        hashMapFactory = new BKHashMapFactory(2048);
+        hashMapFactory = new BKHashMapFactory(CAPACITY);
     }
 
 
@@ -36,6 +37,17 @@ public class BKHashMapFactoryTest {
         performTest(hashMapFactory.globalLock(), true);
 
         //performTest(hashMapFactory.fineGrained(), true);
+    }
+
+    @Ignore
+    @Test
+    public void loadingsTest() {
+        int[] loa = bucketLoadings();
+
+        int c = 0;
+        for (int i : loa) if (i!=0) c++;
+        System.out.println(c);
+        System.out.println("yo");
     }
 
     @Ignore
@@ -107,5 +119,34 @@ public class BKHashMapFactoryTest {
         System.out.println("For " + bkMap.getClass() + " the average time is " + averageTime / loops + " ms\n");
         System.out.println("Size is = " + bkMap.size()); //the size expected must be \approx 2*MEAN
         return averageTime/loops;
+    }
+
+    public int[] bucketLoadings(){
+        Integer numb;
+        int[] loadings = new int[CAPACITY];
+        for (int i = 0; i < MEAN; i++) {
+            numb = i;
+            int bucketNumber = getBucketNumber(numb);
+            loadings[bucketNumber]++;
+        }
+        return loadings;
+    }
+
+    private int getBucketNumber(Object key) {
+        return getBucketNumber(hash(key));
+    }
+
+    private int getBucketNumber(int hash) {
+        return hash & (CAPACITY - 1);
+    }
+
+    static final int hash(Object key) {
+        return (key == null) ? 0 : fromCode(key);
+    }
+
+    private static int fromCode(Object key) {
+        int h = key.hashCode();
+        return h ^ (h >>> 16); //pow(2,4); like div(16)
+        //return key.hashCode();
     }
 }
