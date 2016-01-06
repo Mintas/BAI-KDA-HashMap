@@ -78,7 +78,7 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
             while (current != null) { //we have reached last entry node of bucket.
                 if (current.key.equals(key)) { //delete first entry node.
                     BiFunction<BKHashNode<K, V>, BKHashNode<K, V>, V> replace = (prev, curr) -> {
-                        V value = curr.next.value;
+                        V value = curr.value;
                         prev = curr.next;
                         size--;
                         return value;
