@@ -4,11 +4,11 @@ import model.map.naive.BKMap;
 
 import java.util.function.BiFunction;
 
-//todo : implement hashMap
 public class BKHashMap<K, V> implements BKMap<K, V> {
     private int size;
     private int capacity = 16;
-    private BKHashNode<K, V>[] buckets;
+    //todo :: review package structure! BUCKETS have to be PRIVATE
+    public BKHashNode<K, V>[] buckets;
 
     @SuppressWarnings("unchecked")
     public BKHashMap(){
@@ -69,6 +69,10 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
 
     private V removeVal(K key) {
         int bucket = getBucketNumber(key);
+        return removeFromBucket(key, bucket);
+    }
+
+    protected V removeFromBucket(K key, int bucket) {
         if (buckets[bucket] == null) {
             return null;
         } else {
@@ -95,9 +99,12 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
     private V putValue(K key, V value) {
         //calc hash; create new entry
         int hash = hash(key);
-        BKHashNode<K, V> newEntry = new BKHashNode<K, V>(hash, key, value, null);
+        BKHashNode<K, V> newEntry = new BKHashNode<>(hash, key, value, null);
         int bucket = getBucketNumber(hash);
+        return putIntoBucket(key, value, newEntry, bucket);
+    }
 
+    protected V putIntoBucket(K key, V value, BKHashNode<K, V> newEntry, int bucket) {
         //if emptyList, store entry there.
         if (buckets[bucket] == null) {
             buckets[bucket] = newEntry;

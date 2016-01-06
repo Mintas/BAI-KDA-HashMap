@@ -36,6 +36,10 @@ public class BKHashNode<K,V> implements BKEntry<K,V> {
         return old;
     }
 
+    public BKHashNode<K, V> getNext() {
+        return next;
+    }
+
     @Override
     public int hashCode() {
         int result = key.hashCode();

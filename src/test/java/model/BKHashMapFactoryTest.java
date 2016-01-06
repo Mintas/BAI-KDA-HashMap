@@ -32,11 +32,12 @@ public class BKHashMapFactoryTest {
     public void makeTest() throws Exception{
         //performTest(new BKSimpleMap<>(), true);
 
+        performTest(hashMapFactory.fineGrained(), true);
+
         performTest(hashMapFactory.synchronizeed(), true);
 
         performTest(hashMapFactory.globalLock(), true);
 
-        //performTest(hashMapFactory.fineGrained(), true);
     }
 
     @Ignore
