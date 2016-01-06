@@ -32,11 +32,15 @@ public class BKHashMapFactoryTest {
     public void makeTest() throws Exception{
         //performTest(new BKSimpleMap<>(), true);
 
-        performTest(hashMapFactory.fineGrained(), true);
+        performTest(hashMapFactory.javaConcurrent());
 
-        performTest(hashMapFactory.synchronizeed(), true);
+        performTest(hashMapFactory.javaSynchronized());
 
-        performTest(hashMapFactory.globalLock(), true);
+        performTest(hashMapFactory.fineGrained());
+
+        performTest(hashMapFactory.synchronizeed());
+
+        performTest(hashMapFactory.globalLock());
 
     }
 
@@ -82,6 +86,9 @@ public class BKHashMapFactoryTest {
 
     }
 
+    public long performTest(final BKMap<String, Integer> bkMap) throws InterruptedException {
+        return performTest(bkMap, true);
+    }
 
     public long performTest(final BKMap<String, Integer> bkMap, boolean innerMsg) throws InterruptedException {
         if (innerMsg) System.out.println("Test started for: " + bkMap.getClass());
