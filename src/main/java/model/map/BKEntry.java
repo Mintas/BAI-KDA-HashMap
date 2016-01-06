@@ -1,4 +1,4 @@
-package model.map.entry;
+package model.map;
 
 public interface BKEntry<K,V> {
     public K getKey();

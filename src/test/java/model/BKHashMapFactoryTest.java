@@ -1,6 +1,6 @@
 package model;
 
-import model.map.naive.BKMap;
+import model.map.BKMap;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

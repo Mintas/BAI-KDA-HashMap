@@ -1,6 +1,6 @@
 package model.map.naive;
 
-import model.map.entry.BKSimpleEntry;
+import model.map.BKMap;
 
 import java.util.Arrays;
 

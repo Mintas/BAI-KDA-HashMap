@@ -1,6 +1,8 @@
-package model.map.entry;
+package model.map.naive;
 
-public class BKSimpleEntry<K,V> implements BKEntry<K,V>{
+import model.map.BKEntry;
+
+public class BKSimpleEntry<K,V> implements BKEntry<K,V> {
     private final K key;
     private V value;
 

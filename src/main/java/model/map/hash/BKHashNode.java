@@ -1,6 +1,6 @@
 package model.map.hash;
 
-import model.map.entry.BKEntry;
+import model.map.BKEntry;
 
 /**
  * Created by SBT-Kovalev-DA on 05.01.2016.

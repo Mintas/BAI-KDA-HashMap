@@ -1,10 +1,10 @@
 package model;
 
+import model.map.BKMap;
 import model.map.impls.FineGrainedBKHashMap;
 import model.map.impls.GlobalLockBKHashMap;
 import model.map.impls.SynchronizedBKHashMap;
 import model.map.libimpls.JavaHashMap;
-import model.map.naive.BKMap;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,6 +1,6 @@
 package model.map.libimpls;
 
-import model.map.naive.BKMap;
+import model.map.BKMap;
 
 import java.util.Map;
 
