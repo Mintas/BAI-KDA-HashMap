@@ -20,12 +20,12 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
 
     @Override
     public int size() {
-        int theSize = 0;
+/*        int theSize = 0;
         for (int i = 0; i < buckets.length; i++) {
             for (BKHashNode node = buckets[i]; node != null; node = node.getNext()) theSize++;
         }
-        return theSize;
-        //return size;
+        return theSize;*/
+        return size;
     }
 
     @Override
@@ -84,7 +84,7 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
             while (current != null) { //we have reached last entry node of bucket.
                 if (current.key.equals(key)) { //delete first entry node.
                     V value = current.value;
-                    if (previous == null) buckets[bucket] = null;
+                    if (previous == null) buckets[bucket] = current.next;
                     else previous.next = current.next;
                     size--;
                     return value;

@@ -47,6 +47,9 @@ public class BKHashMapFactoryTest {
         if (innerMsg) System.out.println("Test started for: " + bkMap.getClass());
         long averageTime = 0;
         int loops = 5;
+        //int[] puts = new int[2*MEAN+1];
+
+
         for (int i = 0; i < loops; i++) {
 
             long startTime = System.nanoTime();
@@ -59,9 +62,11 @@ public class BKHashMapFactoryTest {
 
                         // Retrieve value. We are not using it anywhere
                         Integer paramValue = bkMap.remove(String.valueOf(randomParam));
+                        //if (paramValue!=null) puts[randomParam]--;
 
                         // Put value
-                        bkMap.put(String.valueOf(randomParam), randomParam);
+                        Integer put = bkMap.put(String.valueOf(randomParam), randomParam);
+                        //if (put==null) puts[randomParam]++;
                     }
                 });
             }
@@ -77,6 +82,8 @@ public class BKHashMapFactoryTest {
             averageTime += totalTime;
             if (innerMsg) System.out.println((THREAD_POOL_SIZE * REMOVE_PUT_NUMBER / 1000) +  "K entries added/retrieved in " + totalTime + " ms");
         }
+        //long count = Arrays.stream(puts).filter(i -> i == 0).count();
+        //System.out.println("Count of numbers not rolled = " + count);
         System.out.println("For " + bkMap.getClass() + " the average time is " + averageTime / loops + " ms");
         System.out.println("Size is = " + bkMap.size() + "\n \n"); //the size expected must be \approx 2*MEAN
         return averageTime/loops;
