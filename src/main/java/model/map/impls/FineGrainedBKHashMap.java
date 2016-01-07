@@ -17,11 +17,11 @@ public class FineGrainedBKHashMap<K, V> extends BKHashMap<K, V> {
     }
 
     @Override
-    protected V putIntoBucket(K key, V value, BKHashNode<K, V> newEntry, int bucket) {
+    protected V putIntoBucket(K key, BKHashNode<K, V> newEntry, int bucket) {
         ReentrantLock lock = bucketLocks[bucket];
         lock.lock();
         try{
-            return super.putIntoBucket(key, value, newEntry, bucket);
+            return super.putIntoBucket(key, newEntry, bucket);
         } finally {
             lock.unlock();
         }

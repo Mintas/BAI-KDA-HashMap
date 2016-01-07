@@ -2,28 +2,30 @@ package model.map.hash;
 
 import model.map.BKMap;
 
-import java.util.function.BiFunction;
-
 public class BKHashMap<K, V> implements BKMap<K, V> {
     private int size;
     private int capacity = 16;
-    //todo :: review package structure! BUCKETS have to be PRIVATE
     public BKHashNode<K, V>[] buckets;
 
     @SuppressWarnings("unchecked")
-    public BKHashMap(){
+    public BKHashMap() {
         buckets = new BKHashNode[capacity];
     }
 
     @SuppressWarnings("unchecked")
-    public BKHashMap(int capacity){
+    public BKHashMap(int capacity) {
         this.capacity = capacity;
         buckets = new BKHashNode[capacity];
     }
 
     @Override
     public int size() {
-        return size;
+        int theSize = 0;
+        for (int i = 0; i < buckets.length; i++) {
+            for (BKHashNode node = buckets[i]; node != null; node = node.getNext()) theSize++;
+        }
+        return theSize;
+        //return size;
     }
 
     @Override
@@ -81,13 +83,11 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
 
             while (current != null) { //we have reached last entry node of bucket.
                 if (current.key.equals(key)) { //delete first entry node.
-                    BiFunction<BKHashNode<K, V>, BKHashNode<K, V>, V> replace = (prev, curr) -> {
-                        V value = curr.value;
-                        prev = curr.next;
-                        size--;
-                        return value;
-                    };
-                    return replace.apply(previous == null ? buckets[bucket] : previous.next, current);
+                    V value = current.value;
+                    if (previous == null) buckets[bucket] = null;
+                    else previous.next = current.next;
+                    size--;
+                    return value;
                 }
                 previous = current;
                 current = current.next;
@@ -101,35 +101,34 @@ public class BKHashMap<K, V> implements BKMap<K, V> {
         int hash = hash(key);
         BKHashNode<K, V> newEntry = new BKHashNode<>(hash, key, value, null);
         int bucket = getBucketNumber(hash);
-        return putIntoBucket(key, value, newEntry, bucket);
+        return putIntoBucket(key, newEntry, bucket);
     }
 
-    protected V putIntoBucket(K key, V value, BKHashNode<K, V> newEntry, int bucket) {
+    //return oldValue or null if there wasn't one
+    protected V putIntoBucket(K key, BKHashNode<K, V> newEntry, int bucket) {
         //if emptyList, store entry there.
         if (buckets[bucket] == null) {
             buckets[bucket] = newEntry;
             size++;
-            return value;
+            return null;
         } else {
             BKHashNode<K, V> previous = null;
             BKHashNode<K, V> current = buckets[bucket];
 
             while (current != null) { //while not in the end of bucket.
                 if (current.key.equals(key)) {
-                    BiFunction<BKHashNode<K, V>, BKHashNode<K, V>, V> replace = (prev, curr) -> {
-                        newEntry.next = curr.next;
-                        prev = newEntry;
-                        size++;
-                        return value;
-                    };
-                    return replace.apply(previous == null ? buckets[bucket] : previous.next, current);
+                    V val = current.value;
+                    newEntry.next = current.next;
+                    if (previous == null) buckets[bucket] = newEntry;
+                    else previous.next = newEntry;
+                    return val;
                 }
                 previous = current;
                 current = current.next;
             }
             previous.next = newEntry;
             size++;
-            return value;
+            return null;
         }
     }
 
