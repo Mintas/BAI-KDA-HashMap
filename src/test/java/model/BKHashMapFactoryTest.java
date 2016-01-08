@@ -13,10 +13,10 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 public class BKHashMapFactoryTest {
-    int CAPACITY = 2048; //mean % cpcty != 0 (!!!)
-    int MEAN = 100000;
+    int CAPACITY = 32768; //mean % cpcty != 0 (!!!);  2048 works fine; 4096 better; 8192; 16384 works cool; 32768
+    int MEAN = 200000; //good at 200000
     int THREAD_POOL_SIZE = 5;
-    int REMOVE_PUT_NUMBER = 500000;
+    int REMOVE_PUT_NUMBER = 1000000;
 
     BKHashMapFactory hashMapFactory;
 
@@ -55,7 +55,8 @@ public class BKHashMapFactoryTest {
             long startTime = System.nanoTime();
             ExecutorService executors = newFixedThreadPool(THREAD_POOL_SIZE);
 
-            for (int j = 0; j < THREAD_POOL_SIZE; j++) { //we will run 500k remove/put for #times = #threads; just for good averaging;
+            for (int j = 0; j < 5; j++) {
+            //for (int j = 0; j < THREAD_POOL_SIZE; j++) { //we will run 500k remove/put for #times = #threads; just for good averaging;
                 executors.execute(() -> {
                     for (int i1 = 0; i1 < REMOVE_PUT_NUMBER; i1++) {
                         Integer randomParam = (int) ceil(random() * 2 *MEAN); //time grows lineary with groth of MEAN
@@ -139,7 +140,7 @@ public class BKHashMapFactoryTest {
     public int[] bucketLoadings(){
         Integer numb;
         int[] loadings = new int[CAPACITY];
-        for (int i = 0; i < MEAN; i++) {
+        for (int i = 1; i <= MEAN*2; i++) {
             numb = i;
             int bucketNumber = getBucketNumber(numb);
             loadings[bucketNumber]++;
