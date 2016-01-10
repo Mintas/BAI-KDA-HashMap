@@ -14,7 +14,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 public class BKHashMapFactoryTest {
-    int CAPACITY = 2048; //mean % cpcty != 0 (!!!);  2048 works fine; 4096 better; 8192; 16384 works cool; 32768
+    int CAPACITY = 32768; //mean % cpcty != 0 (!!!);  2048 works fine; 4096 better; 8192; 16384 works cool; 32768
     int MEAN = 100000; //good at 200000
     int THREAD_POOL_SIZE = 2;
     int REMOVE_PUT_NUMBER = 500000;
@@ -48,10 +48,11 @@ public class BKHashMapFactoryTest {
 
         performTest(hashMapFactory.fineGrained());
 
-        performTest(hashMapFactory.synchronizeed());
+        if (THREAD_POOL_SIZE<=2) {
+            performTest(hashMapFactory.synchronizeed());
 
-        performTest(hashMapFactory.globalLock());
-
+            performTest(hashMapFactory.globalLock());
+        }
     }
 
     public long performTest(final BKMap<String, Integer> bkMap) throws InterruptedException {
@@ -105,6 +106,24 @@ public class BKHashMapFactoryTest {
         return averageTime/loops;
     }
 
+    @Test
+    public void latencyTest() throws Exception{
+        hashMapFactory = new BKHashMapFactory(CAPACITY);
+
+
+        latencyTest(hashMapFactory.javaConcurrent());
+
+        latencyTest(hashMapFactory.javaSynchronized());
+
+        latencyTest(hashMapFactory.fineGrained());
+
+        if (THREAD_POOL_SIZE<=2) {
+            latencyTest(hashMapFactory.synchronizeed());
+
+            latencyTest(hashMapFactory.globalLock());
+        }
+    }
+
     public void latencyTest(final BKMap<String, Integer> bkMapSource) throws InterruptedException {
         System.out.println("Test started for: " + bkMapSource.getClass());
         LatencyMeasuredHashMap<String, Integer> bkMap = new LatencyMeasuredHashMap(bkMapSource);
@@ -113,8 +132,6 @@ public class BKHashMapFactoryTest {
         int loops = 5;
 
         for (int i = 0; i < loops; i++) {
-
-            long startTime = System.nanoTime();
             ExecutorService executors = newFixedThreadPool(THREAD_POOL_SIZE);
 
             for (int j = 0; j < 5; j++) {
@@ -139,8 +156,8 @@ public class BKHashMapFactoryTest {
             bkMap.putLat = 0L;
             bkMap.remLat = 0L;
         }
-        System.out.println("For " + bkMapSource.getClass() + " the average put latency is " + averageP / loops + " ms");
-        System.out.println("For " + bkMapSource.getClass() + " the average remove latency is " + averageR / loops + " ms");
+        System.out.println("For " + bkMapSource.getClass() + " the average put latency is " + averageP / loops / (5 * REMOVE_PUT_NUMBER ) + " ns");
+        System.out.println("For " + bkMapSource.getClass() + " the average remove latency is " + averageR / loops / (5 * REMOVE_PUT_NUMBER ) + " ns");
     }
 
     ///////////////////////////////////////////////////////////////////////////////
