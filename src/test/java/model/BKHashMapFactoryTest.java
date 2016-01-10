@@ -1,6 +1,7 @@
 package model;
 
 import model.map.BKMap;
+import model.map.LatencyMeasuredHashMap;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -13,20 +14,34 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 public class BKHashMapFactoryTest {
-    int CAPACITY = 32768; //mean % cpcty != 0 (!!!);  2048 works fine; 4096 better; 8192; 16384 works cool; 32768
-    int MEAN = 200000; //good at 200000
-    int THREAD_POOL_SIZE = 5;
-    int REMOVE_PUT_NUMBER = 1000000;
+    int CAPACITY = 2048; //mean % cpcty != 0 (!!!);  2048 works fine; 4096 better; 8192; 16384 works cool; 32768
+    int MEAN = 100000; //good at 200000
+    int THREAD_POOL_SIZE = 2;
+    int REMOVE_PUT_NUMBER = 500000;
+
+    public BKHashMapFactoryTest(){};
+
+    public static BKHashMapFactoryTest withParams(int cp, int m, int tnum, int opTimes) {
+        BKHashMapFactoryTest test = new BKHashMapFactoryTest();
+        test.CAPACITY = cp;
+        test.MEAN = m;
+        test.THREAD_POOL_SIZE = tnum;
+        test.REMOVE_PUT_NUMBER = opTimes;
+        return test;
+    }
 
     BKHashMapFactory hashMapFactory;
 
     @Before
     public void setUp() throws Exception {
-        hashMapFactory = new BKHashMapFactory(CAPACITY);
+        //hashMapFactory = new BKHashMapFactory(CAPACITY);
     }
 
     @Test
     public void makeTest() throws Exception{
+        hashMapFactory = new BKHashMapFactory(CAPACITY);
+
+
         performTest(hashMapFactory.javaConcurrent());
 
         performTest(hashMapFactory.javaSynchronized());
@@ -55,8 +70,8 @@ public class BKHashMapFactoryTest {
             long startTime = System.nanoTime();
             ExecutorService executors = newFixedThreadPool(THREAD_POOL_SIZE);
 
-            for (int j = 0; j < 5; j++) {
-            //for (int j = 0; j < THREAD_POOL_SIZE; j++) { //we will run 500k remove/put for #times = #threads; just for good averaging;
+            for (int j = 0; j < 5; j++) { //actually for 5 times
+            //for (int j = 0; j < THREAD_POOL_SIZE; j++) { //we will run remove/put for #times = #threads; for good averaging with heating jit;
                 executors.execute(() -> {
                     for (int i1 = 0; i1 < REMOVE_PUT_NUMBER; i1++) {
                         Integer randomParam = (int) ceil(random() * 2 *MEAN); //time grows lineary with groth of MEAN
@@ -81,7 +96,7 @@ public class BKHashMapFactoryTest {
             long entTime = System.nanoTime();
             long totalTime = (entTime - startTime) / 1000000L;
             averageTime += totalTime;
-            if (innerMsg) System.out.println((THREAD_POOL_SIZE * REMOVE_PUT_NUMBER / 1000) +  "K entries added/retrieved in " + totalTime + " ms");
+            if (innerMsg) System.out.println((5 * REMOVE_PUT_NUMBER / 1000) +  "K entries added/retrieved in " + totalTime + " ms");
         }
         //long count = Arrays.stream(puts).filter(i -> i == 0).count();
         //System.out.println("Count of numbers not rolled = " + count);
@@ -90,24 +105,63 @@ public class BKHashMapFactoryTest {
         return averageTime/loops;
     }
 
+    public void latencyTest(final BKMap<String, Integer> bkMapSource) throws InterruptedException {
+        System.out.println("Test started for: " + bkMapSource.getClass());
+        LatencyMeasuredHashMap<String, Integer> bkMap = new LatencyMeasuredHashMap(bkMapSource);
+        long averageP = 0;
+        long averageR = 0;
+        int loops = 5;
+
+        for (int i = 0; i < loops; i++) {
+
+            long startTime = System.nanoTime();
+            ExecutorService executors = newFixedThreadPool(THREAD_POOL_SIZE);
+
+            for (int j = 0; j < 5; j++) {
+                executors.execute(() -> {
+                    for (int i1 = 0; i1 < REMOVE_PUT_NUMBER; i1++) {
+                        Integer randomParam = (int) ceil(random() * 2 *MEAN);
+
+                        Integer paramValue = bkMap.remove(String.valueOf(randomParam));
+
+                        Integer put = bkMap.put(String.valueOf(randomParam), randomParam);
+                    }
+                });
+            }
+
+            executors.shutdown();
+            executors.awaitTermination(MAX_VALUE, DAYS);
+
+            averageP += bkMap.putLat;
+            averageR += bkMap.remLat;
+            System.out.println("PL = " + (bkMap.putLat / (5 * REMOVE_PUT_NUMBER )) + " ms");
+            System.out.println("RL = " +  (bkMap.remLat / (5 * REMOVE_PUT_NUMBER )) + " ms");
+            bkMap.putLat = 0L;
+            bkMap.remLat = 0L;
+        }
+        System.out.println("For " + bkMapSource.getClass() + " the average put latency is " + averageP / loops + " ms");
+        System.out.println("For " + bkMapSource.getClass() + " the average remove latency is " + averageR / loops + " ms");
+    }
+
     ///////////////////////////////////////////////////////////////////////////////
     //here goes the test to find out better value of executionTime;
     // averaging out effect of JVM opyimizations
-    @Ignore
+    //@Ignore
     @Test
     public void makeBigTest() throws Exception{
+        performBestTimeTest(hashMapFactory.fineGrained());
+
         performBestTimeTest(hashMapFactory.synchronizeed());
 
         performBestTimeTest(hashMapFactory.globalLock());
 
-        performBestTimeTest(hashMapFactory.fineGrained());
     }
 
     public void performBestTimeTest(final BKMap<String, Integer> bkMap) throws InterruptedException {
         System.out.println("Test started for: " + bkMap.getClass());
         long bestTime = Long.MAX_VALUE;
         long averageTime = 0;
-        int loops = 10;
+        int loops = 3;
         int sucLoops = 0;
         for (int i = 0; i < loops; i++) {
             long thisTime = performTest(bkMap, false);
